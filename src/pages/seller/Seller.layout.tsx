@@ -4,9 +4,12 @@ import { Input } from '@/components/ui/Input'
 import { UserNav } from '@/components/UserNav'
 import { HomeIcon, Package2Icon, ShoppingCartIcon, PackageIcon, SearchIcon } from 'lucide-react'
 import { useAuth } from '@/auth/authContext'
+import { Toaster } from '@/components/ui/toaster'
+import { useState } from 'react'
 
 export default function SellerLayout() {
   const { user } = useAuth()
+  const [tab, setTab] = useState('Dashboard')
   if (!user) {
     return <Navigate to={'/login/user'} />
   }
@@ -29,7 +32,8 @@ export default function SellerLayout() {
             <nav className="grid items-start px-4 text-sm font-medium">
               <Link
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
-                to="/seller/dashboard"
+                to="/seller/"
+                onClick={() => setTab('Dashboard')}
               >
                 <HomeIcon className="h-4 w-4" />
                 DashBoard
@@ -37,6 +41,7 @@ export default function SellerLayout() {
               <Link
                 className="flex items-center gap-3 rounded-lg bg-gray-100 px-3 py-2 text-gray-900  transition-all hover:text-gray-900 dark:bg-gray-800 dark:text-gray-50 dark:hover:text-gray-50"
                 to="/seller/orders"
+                onClick={() => setTab('Orders')}
               >
                 <ShoppingCartIcon className="h-4 w-4" />
                 Orders
@@ -45,6 +50,7 @@ export default function SellerLayout() {
               <Link
                 className="flex items-center gap-3 rounded-lg px-3 py-2 text-gray-500 transition-all hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-50"
                 to="/seller/products"
+                onClick={() => setTab('Products')}
               >
                 <PackageIcon className="h-4 w-4" />
                 Products
@@ -60,18 +66,22 @@ export default function SellerLayout() {
             <span className="sr-only">Home</span>
           </Link>
           <div className="flex-1">
-            <h1 className="font-semibold text-lg">Recent Orders</h1>
+            <h1 className="font-semibold text-lg">{tab}</h1>
           </div>
           <div className="flex flex-1 items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
             <form className="ml-auto flex-1 sm:flex-initial">
-              <div className="relative">
-                <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
-                <Input
-                  className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px] bg-white"
-                  placeholder="Search orders..."
-                  type="search"
-                />
-              </div>
+              {tab != 'Dashboard' ? (
+                <div className="relative">
+                  <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+                  <Input
+                    className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px] bg-white"
+                    placeholder="Search orders..."
+                    type="search"
+                  />
+                </div>
+              ) : (
+                ''
+              )}
             </form>
             <UserNav />
           </div>

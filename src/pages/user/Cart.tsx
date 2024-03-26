@@ -2,10 +2,52 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useCartStore } from '@/hooks/useCartStore'
 import { TrashIcon, MinusIcon, PlusIcon } from 'lucide-react'
+import axios from 'axios'
+import { useAuth } from '@/auth/authContext'
+import { toast } from '@/components/ui/use-toast'
+import { useNavigate } from 'react-router-dom'
 
 export default function Cart() {
   const { addToCart, cart, decreaseQuantity, removeFromCart, increaseQuantity } = useCartStore()
+  const { token } = useAuth()
+  const navigate = useNavigate()
   let total = 0
+  const placeOrder = async () => {
+    if (cart.length === 0) {
+      console.error('Cart is empty. Cannot place an order.')
+      return
+    }
+    console.log('hello')
+    const orderItems = cart.map(item => ({
+      productId: item.id,
+      quantity: item.quantity,
+    }))
+
+    const orderData = {
+      items: orderItems,
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5002/api/orders/', orderData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (response.status > 299) {
+        console.error('Failed to place order:', response.data)
+      } else {
+        console.log('Order placed successfully!')
+        // toast({
+        //   title: 'Order Placed successfully',
+        //   description: response.data,
+        // })
+        navigate('/')
+      }
+    } catch (error) {
+      console.error('Error placing order:', error)
+    }
+  }
   return (
     <div className="p-8">
       <h1 className="text-3xl font-bold mb-8">Shopping Cart</h1>
@@ -18,7 +60,7 @@ export default function Cart() {
             cart.map(item => {
               total += item.price * item.quantity
               return (
-                <Card className="mt-6">
+                <Card className="mt-6" key={item.id}>
                   <CardContent className="flex items-start gap-6 p-6">
                     <img
                       alt="Product Image"
@@ -67,8 +109,8 @@ export default function Cart() {
               <span className="font-semibold">Total</span>
               <span className="font-semibold">₹{(total * 118) / 100}</span>
             </div>
-            <Button className="w-full" variant="default">
-              Proceed to Checkout
+            <Button className="w-full" variant="default" onClick={placeOrder}>
+              PLace Order
             </Button>
           </CardContent>
         </Card>

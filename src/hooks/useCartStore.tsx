@@ -1,3 +1,4 @@
+import { toast } from '@/components/ui/use-toast'
 import axios from 'axios'
 import { create } from 'zustand'
 
@@ -8,6 +9,7 @@ interface Product {
   description: string
   imageUrl: string
   sellerId: number
+  stock: number
   createdAt: string
   updatedAt: string
 }
@@ -37,9 +39,22 @@ export const useCartStore = create<CartState>((set, get) => ({
       const existingCartItem = state.cart.find(item => item.id === product.id)
 
       if (existingCartItem) {
-        const updatedCart = state.cart.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        )
+        const updatedCart = state.cart.map(item => {
+          if (item.id === product.id) {
+            const newQuantity = item.quantity + 1
+            if (newQuantity <= item.stock) {
+              return { ...item, quantity: newQuantity }
+            } else {
+              toast({
+                title: 'Out of Stock',
+                variant: 'destructive',
+              })
+              return item
+            }
+          } else {
+            return item
+          }
+        })
         return { cart: updatedCart }
       } else {
         return { cart: [...state.cart, { ...product, quantity: 1 }] }
@@ -50,11 +65,30 @@ export const useCartStore = create<CartState>((set, get) => ({
     set(state => ({
       cart: state.cart.filter(item => item.id !== productId),
     }))
+    toast({
+      title: 'Removed from cart',
+    })
   },
   increaseQuantity: (productId: number) => {
-    set(state => ({
-      cart: state.cart.map(item => (item.id === productId ? { ...item, quantity: item.quantity + 1 } : item)),
-    }))
+    set(state => {
+      const updatedCart = state.cart.map(item => {
+        if (item.id === productId) {
+          const newQuantity = item.quantity + 1
+          if (newQuantity <= item.stock) {
+            return { ...item, quantity: newQuantity }
+          } else {
+            toast({
+              title: 'Out of Stock',
+              variant: 'destructive',
+            })
+            return item
+          }
+        } else {
+          return item
+        }
+      })
+      return { cart: updatedCart }
+    })
   },
   decreaseQuantity: (productId: number) => {
     set(state => ({

@@ -19,6 +19,9 @@ import ContactPage from './pages/Contact'
 //Seller Pages
 import SellerLayout from './pages/seller/Seller.layout'
 import AdminOrders from './pages/admin/Orders'
+import SellersProduct from './pages/seller/SellerProducts'
+import SellerDashboard from './pages/seller/SellerDashBoard'
+import SellerOrders from './pages/seller/SellerOrders'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -46,7 +49,9 @@ const router = createBrowserRouter(
 
       {/* Sellers Route */}
       <Route path="/seller" element={<SellerLayout />}>
-        <Route path="/seller/products" element={<ProductsPage />} />
+        <Route index element={<SellerDashboard />} />
+        <Route path="/seller/orders" element={<SellerOrders />} />
+        <Route path="/seller/products" element={<SellersProduct />} />
       </Route>
 
       {/* Admin Route */}
